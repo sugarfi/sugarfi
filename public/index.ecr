@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>sugarfi</title>
+        <link rel="stylesheet" href="/css/style.css">
+        <link rel="stylesheet" href="/css/md.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/themes/prism-tomorrow.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.0/css/OverlayScrollbars.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.0/js/OverlayScrollbars.min.js"></script>
+        <meta name="keywords" content="sugarfi, languages, design, web, blog, website">
+        <meta name="og:title" content="sugarfi">
+    </head>
+    <body>
+        <header id="logo">
+            <h1 data-glitch="sugarfi">sugarfi</h1>
+            <h2>languages, design, & the web</h2>
+        </header>
+        <section id="info">
+            <div>
+                <h1>about</h1>
+                <div>
+                    <img src="/images/cracked.jpg" alt="Edited profile picture">
+                    <p>
+                        Hi there! I am sugarfi, an aspiring programmer and
+                        full-stack web developer. I have about 3 years of
+                        programming experience, but I have only recently 
+                        begun to take it seriously. I am trying to learn as
+                        much as I can, and I think I have created some cool
+                        stuff along the way.
+                    </p>
+                </div>
+            </div>
+            <div>
+                <h1>my work</h1>
+                <div>
+                    <img src="/images/deco.jpg" alt="Edited profile picture">
+                    <p>
+                        You can find some of my works on my <a href="https://github.com/sugarfi">Github</a>,
+                        as well as on my <a href="https://repl.it/@sugarfi">Repl.it profile</a>. A lot of my
+                        older projects are in Python, but lately I have made several web applications in Node.js
+                        and am branching out into Rust, Crystal, and even some Ruby. Most of my work is open source,
+                        and licensed under either GPLv3 or MIT. Feel free to fork, contribute, or send feedback!
+                    </p>
+                </div>
+            </div>
+            <div>
+                <h1>contact</h1>
+                <div>
+                    <img src="/images/cure.jpg" alt="Edited profile picture">
+                    <p>
+                        Interested in one of my projects? Want some help on an upcoming app or website? Get in touch!
+                        You can reach me on Discord at sugarfi#8705, and you can shoot me an email at sugarfi@sugarfi.dev.
+                        I'd be happy to help with any project you have coming up, and I'm totally open for questions. Of
+                        course, please don't spam. Other than that, feel free to contact me!
+                    </p>
+                </div>
+            </div>
+            <div>
+                <h1>my skills</h1>
+                <div>
+                    <img src="/images/tile.jpg" alt="Edited profile picture">
+                    <p>
+                        I am proficient in quite a few languages, including Python, Node.js, Rust, Crystal, Go,  Scheme, 
+                        and Haskell. As well, I have a good knowledge of CSS, including Flexbox and 
+                        Grid, as well as JS, both vanilla and with jQuery. I use Linux and am proficient with the
+                        command line; I also have a decent understand of how x86 works. I can pick up new
+                        languages and frameworks very quickly, and I like to learn by doing.
+                    </p>
+                </div>
+            </div>
+        </section>
+        <ul id="feed">
+            <h1>blog</h1>
+            <%- posts.each do |post| %>
+                <li>
+                    <a href="/blog/<%= post[3] %>">
+                        <h1><%= post[0] %></h1>
+                        <p class="md">
+                            <%= post[2][..300] %><%- if post[2].size >= 300 %>...<%- end %>
+                        </p>
+                        <time datetime="<%= post[1] %>">Posted on <%= post[1].to_s "%F %I:%M %P" %></time>
+                    </a>
+                </li>
+            <%- end %>
+        </ul>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                OverlayScrollbars(document.querySelectorAll("body"), {
+                    className: "os-theme-light",
+                });
+            });
+            const converter = new showdown.Converter({'ghCodeBlocks': true});
+            document.querySelectorAll("ul#feed > li > a > .md").forEach(e => {
+                e.innerHTML = converter.makeHtml(e.innerText.trim());
+            })
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/components/prism-core.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/plugins/autoloader/prism-autoloader.min.js"></script>
+        <footer>
+            Copyright 2020 sugarfi
+        </footer>
+    </body>
+</html>

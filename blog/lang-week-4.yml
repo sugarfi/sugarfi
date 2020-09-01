@@ -1,0 +1,286 @@
+title: "Lang Week Day 4: F Sharp"
+time: 2020-09-01T14:53-05:00
+body: |
+    Today on Lang Week, I learned F#. F# is a functional .NET language, similar to Haskell, if a bit simpler.
+    Overall I enjoyed it. Anyway, read on!
+
+    ## Setup
+
+    The official F# installation instructions are somewhat complicated, so I would recommend this page
+    on the (admittedly pretty great) website 
+    [F# for fun and profit](https://fsharpforfunandprofit.com/installing-and-using/) for easier installation.
+
+    ## First Steps
+
+    F# programs are written as modules composed of functions, values, and types. Modules are declared using the
+    `module` keyword. An entry point for a program can be specified by declaring a `Main` module. Thus, we could
+    write a "Hello, world!" program as follows:
+    ```fsharp
+    module Main
+        printfn "Hello, world!"
+    ```
+    Notice a few things:
+
+    - F# is indentenation-sensitive, like Python; indents are used to mark nesting, like in line 2.
+    - `printfn` is a function that prints a string.
+    - Strings are written using `""`.
+    - Functions are called without parentheses, like in Ruby or Haskell.
+
+    ## Math
+
+    Now that we understand how to do that, we can get into a bit more complex stuff, starting with math. Math uses
+    the usual, infix operators: `+`, `-`, `*`, `/`, and `%`. (Numbers are written as normal.) Here are a few examples:
+    ```fsharp
+    module Main 
+        printfn "%d %d %d" (5 + 5) (7 % 2) (8 * 7)
+    ```
+    (`printfn` uses C `printf`-like formatting.)
+
+    ## Variables
+
+    Variables are pretty simple, and are declared with `let`. For example:
+    ```fsharp
+    let a = 5
+    ```
+    Then we can do stuff like `printfn "%d" a`, for example. However, this has one caveat: `a` is immutable, ie. it
+    cannot be changed. Usually this is fine, but in some cases it can be a problem: what if `a` absolutely *needs*
+    to change? For that we can use `let mutable`:
+    ```fsharp
+    let mutable a = 5
+    ```
+    Then we can reassign `a` using `<-`:
+    ```fsharp
+    a <- 6
+    ```
+    Keep this in mind! `<-` must be used, since `=` is used for comparison.
+
+    ## Functions
+
+    Functions are pretty simple, since they function similarly to variables. If you know Haskell, it's a lot like in
+    that: you simply declare the pattern followed by the result. That might be a bit confusing, so here's an
+    example:
+    ```fsharp
+    let inc x = x + 1
+    ```
+    This basically says that `inc x` should be the same as `x + 1`. We can then use `inc` just like any other 
+    function:
+    ```fsharp
+    let a = 5
+    printfn "%d %d %d" (inc 1) (inc 5 * 5) (inc a)
+    ```
+    A type can be specified using `:`:
+    ```fsharp
+    let inc (x:int) = x + 1
+    ```
+    Now `inc` will not work on any non-`int` value. The parentheses are mandatory.
+
+    ## Sequence Types
+
+    F# has several sequence types. The most common are:
+
+    - Lists. Lists are singly-linked, like in Clojure. They can be written in two ways, shown below:
+    ```fsharp
+    [ 1; 2; 3 ]
+    [
+        1
+        2
+        3
+    ]
+    ```
+    They can be indexed using the index operator, `.[]`: `[1; 2; 3].[0]` is `1`. You can also index them with a 
+    slice, forming a new list: `[1; 2; 3].[..1]` is `[1; 2]`. As well, the `@` operator can be used to concatenate
+    lists, and the `::` operator to add an item to the front (`1 :: [2; 3]` is `[1; 2; 3]`).
+    - Arrays. Arrays are similar to lists, but are not linked, similar to Clojure vectors. They can also be written
+    in two ways, like lists:
+    ```fsharp
+    [| 1; 2; 3 |]
+    [|
+        1
+        2
+        3
+    |]
+    ```
+    Note the pipes. They can also be indexed and sliced using `.[]`; however, they cannot be concatenated with
+    `::` and `@`.
+    - Sequences. Sequences are written as `seq { x }`, where `x` is an expression generating a sequence. For example,
+    `seq { 1..10 }`. One important feature of sequences is that they are lazy, like lists in Haskell: they are
+    generated on demand, and as such are useful for infinite lists. They cannot be indexed.
+
+    All sequence types can be generated using loops. This is done with inline loop syntax. For example, the following
+    would output `[1; 2; 3; 4; 5]`:
+    ```fsharp
+    printfn "%A" [for i in 1..5 -> i]
+    ```
+    The expression after `->` can be arbitrarily complex. Note that `->` is syntatic sugar for `do yield`; usually
+    `->` is fine, but with nested loops, `do yield` may be needed. For example, to generate nested lists:
+    ```fsharp
+    printfn "%A" [for x in 1..5 do
+                    for y in 1..5 do
+                        yield (x, y)]
+    ```
+    (`(x, y)` is a tuple; more on those next section.) This approach will work, and generate a 2D list, repeating
+    the numbers `1` through `5`. However, you might not want nested lists. What to do to flatten it? You could use
+    list flattening methods. However, there is a better way: `yield!`. `yield!` is like `yield`, but it returns
+    a sequence that is flattened into its parent, instead of a new sequence. For example:
+    ```fsharp
+    printfn "%A" [for x in 1..5 do
+                    for y in 1..5 do
+                        yield! (x, y)]
+    ```
+    This would generate a flattened list, like we wanted.
+
+    ## Tuples, Records, and Discriminated Unions
+
+    The above sequence types are useful, but have one caveat; they can only hold one type. Tuples are a sequence type
+    that can hold any type. A tuple is written `(x1, x2, ...)`, where `x1` and `x2` are expressions. A tuple type is
+    denoted `t1*t2*...`, where each `tN` represents the `N`th type in the tuple. Tuples cannot be indexed. Tuples
+    can be either reference tuples or struct tuples. Reference tuples don't use any special notation; struct tuples
+    are written using `struct(...)` rather than just `(...)`. Struct and reference tuples cannot be mixed.
+
+    In addition to tuples, F# has records. Records are like C structs: they serve as a way to collect data in named
+    fields. While tuples can be used to represent groups of data, records are more appropriate. Records are created
+    using `type` and `{}`. For example:
+    ```fsharp
+    type MyRecord = {
+        a : int
+        b : int
+    }
+    ```
+    Then to create a `MyRecord`, we can use `{ a = 5, b = 6 }` or similar.
+
+    Finally, we can also use Discriminated Unions. Discriminated Unions are similar to Rust enums: they have several
+    variants, and each variant can hold data. They are also declared using `type`:
+    ```fsharp
+    type MyUnion =
+        | A
+        | B
+    ```
+    This creates a type `MyUnion`, with variants `A` and `B`. We can then use `A` and `B` to create these variants.
+    These variants can be made to hold data using `of`. For example, to add a field called `a` that is an `int` to
+    the `B` variant above, we could do:
+    ```fsharp
+    type MyUnion = 
+        | A
+        | B of a : int
+    ```
+    Then we can either initialize this variant using `B(5)` or `B(a = 5)`, where `5` can be any `int`. Multiple fields
+    can be created using tuple type notation:
+    ```fsharp
+    type MyUnion =
+        | A
+        | B of a : int * int * b : int
+    ```
+    Note how we have an anonymous field here. This variant could be constructed using either `B(x, y, z)` or 
+    `B(a = x, y, b = z)`, where `x`, `y`, and `z` are `int`s.
+
+    ## If
+
+    F# has a simple conditional construct, `if`. It functions as in other languages, and can bre created using `if`-
+    `then`-`else`. It is an expression, and can be used as one. For example:
+    ```fsharp
+    if a = b then
+        printfn "Equal"
+    else
+        printfn "Not equal"
+    ```
+
+    ## Pattern Matching
+
+    One of the most powerful features of F# is pattern matching. It functions like in other languages, and can be used
+    in function definitions, assignment, and `match`/`with` expressions, which will be covered later. We'll start
+    with the basics:
+
+    A literal name, like `a` or `b`, matches any value, and assigns it to that name. This is how function parameters
+    work: the name matches any value, and binds it to that name, so it can be used in the body. In functions, `:`
+    can be used to give the name a type. The name can be nested in an expression, to extract and destructure.
+
+    A sequence, array, or list filled with sub-patterns matches a list of that length matching every pattern in it.
+    This may be confusing, so here is an example:
+    ```fsharp
+    let f [ a; b ] = a
+    ```
+    This defines a function `f` that, given a two-element list, returns the first item. As said above, we could also
+    use `[| a; b |]` or `seq { a b }` to match an array or sequence.
+
+    Records, tuples, and union variants can be matched in a similar manner to the above, as in the following example:
+    ```fsharp
+    type MyRecord = { a : int }
+    type MyUnion =
+        | A of a : int
+
+    let f { a = x } = x
+    let f (a, b) = a
+    let f A(x) = x
+    ```
+    This defines a function `f` that extracts the first item from a tuple, the `a` field from a `MyRecord`, and the
+    value `a` from an `A` union variant.
+
+    `_` is a wildcard, matching any value and ignoring it. It can be used multiple times in one pattern.
+
+    Finally, `::` can be used to match the first and remaining elements of a list. For example, the following:
+    ```fsharp
+    let f a :: b = printfn "%d %A" a b
+    f [ 1; 2; 3]
+    ```
+    Will output `1 [2; 3]`. Matching a one element list will set `a` to the first element and `b` to `[]`.
+
+    Pattern matching can be done manually, without functions, using `match`/`with`. `match`/`with` is like switch/case
+    in other languages, and matches a value against several patterns. Like `if`, `match` blocks can be used as 
+    expressions. An example `match` block is:
+    ```fsharp
+    match x with
+        | x1 -> y1
+        | x2 -> y2
+    ```
+    Where `x` is an expression, `x1` and `x2` are patterns, and `y1` and `y2` are expressions. Again, `->` is 
+    shorthand for `do yield`, so `do` can be used here.
+
+    Finally, pattern matching can be used in assignment. If the left hand side of a `let`/`=` is a pattern, matching
+    the right side, all names in that pattern will be bound as variables. For example, the following would 
+    destructure the two-element tuple `x` into two variables `a` and `b`:
+    ```fsharp
+    let (a, b) = x
+    ```
+
+    ## Classes and Interfaces
+
+    Another important feature of F# is classes. Classes function as in other languages, having a constructor and
+    methods. They are declared using `type`:
+    ```fsharp
+    type MyClass(a : int) =
+        member this.A = a
+    ```
+    The `member` keyword is used to declare an instance field or method. Here, we create a member `this.A`, set to
+    the `a` parameter in the constructor. We can do something similar for methods:
+    ```fsharp
+    type MyClass(a : int) = 
+        member Add b = printfn "%d" a + b
+    ```
+    Then, to construct and instance of the class, we can use:
+    ```fsharp
+    let object = new MyClass(a)
+    ```
+    Where `a` is a value. Then we can use `object.A` or `object.Add b` to invoke methods and properties.
+
+    Another important feature of F# is interfaces. Interfaces, like in other languages, allow you to specify methods
+    a class should have. An interface is also declared with `type`. Interfaces specify a series of `abstract members`,
+    which are like methods without a body. You just set the type signature. For example:
+    ```fsharp
+    type MyInterface =
+        abstract member Method : int -> int -> int
+    ```
+    Note the type signature `int -> int -> int`; since F# is curried, this refers to a function taking two `int`s and
+    returning an `int`. To implement this interface, we create a class. Then we use the `interface` keyword:
+    ```fsharp
+    type MyClass(a : int) =
+        // --SNIP--
+        interface MyInterface with
+            member this.Method x y = x + y
+    ```
+    Then, on an instance `x` of `MyClass`, we can call this method by using `(x :> MyInterface).Method x y`.
+
+    # Closing
+
+    That concludes my F# tutorial. Overall, I find F# an interesting language. Note that this does not cover the full
+    language, but only the core parts. To learn more, I would recommend the [F# website](https://fsharp.org). Thanks
+    for reading!

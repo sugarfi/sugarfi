@@ -1,0 +1,367 @@
+title: "Lang Week Day 2: Scala"
+time: 2020-09-01T14:51-05:00
+body: |
+    For Lang Week today, I decided to learn Scala. For those who don't know, Scala is a JVM language, designed to
+    mix function and object-oriented programming. Not gonna lie here, I really hated it. In my opinion Scala is like
+    the bad parts of every other language mixed together with some pattern matching thrown in. But, that's not what
+    I'm here to write about (although chances are I will write about it later). Enjoy this Scala tutorial!
+
+    ## Setup
+
+    Scala can be installed using package managers on most distros, or you can check the 
+    [download page](https://www.scala-lang.org/download/). On Ubuntu, I can install Scala using:
+    ```sh
+    sudo apt install scala
+    ```
+
+    ## Hello, World!
+
+    A "Hello, world!" program can be written in two ways: using the REPL and using the compiler. We'll start with
+    the compiler way, which may remind you a bit of Java:
+    ```scala
+    object HelloWorld extends App {
+        println("Hello, world!")
+    }
+    ```
+    Save this in a file `hello.scala`. To run this, we must first compile it, using `scalac hello.scala`. Then,
+    we can use `scala hello` to run it. Alternatively, we can run this from the REPL, by typing `scala`, and then
+    entering `println("Hello, world!")`. Let's go through these line by line:
+
+    - The REPL version is pretty self explanatory: it calls `println` with the argument `"Hello, world!"`.
+    - The compiled version is a bit more complicated. Here, we can an `object` extending `App`. `App` here is a 
+    trait; more on that later. Then in the body of that object, we call `println` just like in the REPL. This is 
+    like doing, in Java:
+    ```java
+    public class HelloWorld {
+        public static void main(String[] args) {
+            System.out.println("Hello, world!");
+        }
+    }
+    ```
+    Keep in mind I don't know Java so this may be inaccurate.
+
+    ## Math and Literals
+
+    Math and literals function as they do in most languages: strings are created with `""`, numbers are written as
+    normal, and operators have C-like precedence and are infix. Comments are done using `//` and `/* */`. A few
+    examples:
+    ```scala
+    5 // These are numbers:
+    5.6
+    -7
+    "abc" // These are strings:
+    ""
+    5 + 5 // Oh boy math!
+    6 % 2
+    1 == 2
+    ```
+
+    ## Variables
+
+    Moving on, we will now get into variables. There two types of variables in Scala: mutable and immutable. 
+    Immutable variables are recommended; mutable ones should only be used when absolutely necessary. They are created
+    with `var` and `val`, respectively. For example:
+    ```scala
+    var a = 5 // a is mutable,
+    a = 6     // so I can reassign it!
+
+    val b = 5 // b is constant,
+    b = 6     // so this will error.
+    ```
+    The type is inferred. However, you may want to specify it, using `:`:
+    ```scala
+    var a: Int // A common use of this is when you want to declare a variable before use.
+    a = 5
+
+    var b: Int = 6 // This is valid, but discouraged. Use only when you want to be *very* clear.
+    ```
+
+    ## Functions and Calling
+
+    As you might have guessed, function calls are done using `()`. Thus, `f()` calls `f` with no arguments, and
+    `f(a, b, c)`, calls `f` with the arguments `a`, `b`, and `c`. But how can we define our own functions?
+    That is done using `def`, or less commonly, `=>`. To use `def`, we do:
+    ```scala
+    def f(arg1: type1, arg2: type2) = code
+    ```
+    `code` can be an expression (`arg1 + 5`) or a block `{ println(arg1 + 5) }`. Note the type signatures: these
+    are mandatory. (Functions are also pattern matched; more on that later.) We can also use `=>`; think of it as
+    `=>` in JS or `lambda` in Python. For example, the following would be equivalent to the above:
+    ```scala
+    val f = (arg1: type1, arg2: type2) => code
+    ```
+    This can be useful in anonymous functions, for example. However, see below.
+
+    ### Anonymous Functions
+
+    Anonymous functions can be created in two main ways. For this example, I will be using the `list.map` method.
+    Lists will be covered in the next section. For now, just remember that `list` is a list and `list.map` applies
+    a function to each element of a list.
+
+    The first way is similar to the one described above. Notice how we assigned the function to the `val f`.
+    Thus, the function is a literal, an may be passed around. So to add 1 to each item in a list, we might do:
+    ```scala
+    list.map(n => n + 1)
+    ````
+    Note that lack of a type on `n`; the type can be inferred from the type of `list`. However, for the use case,
+    this can be overly verbose. Thus, there is another syntax:
+    ```scala
+    list.map(_ + 1)
+    ```
+    This is the same as the above code. The `_` will be replaced with the value. The value can be an arbitrarily
+    complex expression, for example:
+    ```scala
+    list.map({ println(_); _ + 1 })
+    ```
+    Functions are first class, so we could simply take the function `f` from above and do `list.map(f)`.
+    However, this forces us to define a function, when an anonymous one would work just as well.
+
+    ## Control Flow
+    Control flow is similar to C. `if` and `while` are used like in other languages:
+    ```scala
+    if (a == b) println("a == b!")
+    while (a < 5) a = a + 1
+    ```
+    However, one difference is that `if` is an expression, so when combined with an `else` clause we can
+    use it as a ternary operator:
+    ```scala
+    val a = a if a > b else b 
+    ```
+    However, `for` loops are a bit different. They behave like a for-in clause in Python or Rust. They use the
+    `<-` operator. So, to print every element in a list `n`, we could use:
+    ```scala
+    for (item <- n) println(item)
+    ```
+    Pretty simple. However, `for` loops have one more trick up their sleeve: when `yield` is written after the loop,
+    a list is returned and the loop becomes an expression. For example, to add 1 to every item in `n` and assign
+    the result to `m`, we could do:
+    ```scala
+    val m = for (i <- n) yield i
+    ```
+    Finally, there is `match`. `match` is like switch-case in other languages, but pattern-matched. For example:
+    ```scala
+    5 match {
+        case 6 => println("5 is 6")
+        case _: Int => println("It's an Int!")
+    }
+    ```
+    Here `_` is a wildcard character, so to speak, matching anything. Thus, `_: Int` matches anything that is
+    an `Int`.
+
+    ## Lists and Maps
+
+    Unlike other languages, lists are not created using `[]`. They are instances of the `List` class, and created
+    by using its constructor. For example, `List(1, 2, 3)` is the same as `[1, 2, 3]` in other languages. Lists
+    are indexed using `()`. For example, `a(0)` is the same as `a[0]` in other languages. To concatenate to lists,
+    we can use the `++`, `:+`, and `+:` operators. `++` concatenates two lists: `List(1, 2, 3) ++ List(4, 5, 6)`
+    is `List(1, 2, 3, 4, 5, 6)`. `+:` and `:+` append and prepend, respectively. For example, `List(1, 2, 3) :+ 5`
+    is `List(1, 2, 3, 5)`. However, `List` is just one sequence class. The others include `Vector`, `Seq`, and `Set`.
+    Some of the important differences are:
+
+    - `List` is a linked list,
+    - `Set` only allows only allows unique elements; adding a new element will fail silently if it is already in the
+    set.
+
+    All can be indexed using `()`, and can be added to using `++`, `+:`, and `:+`. As well, all have a few common
+    methods, including:
+
+    - `map`: applies a function to each element and returns a new sequence.
+    - `foreach`: like `map`, but doesn't return a new sequence. Used simply for side effects.
+    - `reduce`: like in other langs, applies a function multiple times to reduce a list.
+    - `drop`: removes elements from the start of the list.
+    - `dropWhile`: given a function, removes the first element of the list until the function, passed that value,
+    does not return true.
+
+    Maps are similar to lists. A map is created using the `Map` constructor, and passed a series of tuples. For 
+    example, the following:
+    ```scala
+    val a = Map(
+        1 -> 2,
+        3 -> 4,
+        5 -> 6
+    )
+    ```
+    Would set `a` to a map mapping `1` to `2`, `3` to `4`, and `5` to `6`. (`a -> b` is syntatic sugar for `(a, b)`).
+    Then, we can use `()` to index it, just like with lists. To set a key, we can use `=`:
+    ```scala
+    a(7) = 8
+    ```
+    However, to do this, one must use a mutable map. First, you must import that constructor:
+    ```scala
+    import collection.mutable.Map
+    ```
+    Then you can use `collection.mutable.Map` in place of `Map` to create mutable maps.
+
+    Maps can also be concatenated using `++`, like other sequences. However, `:+` and `+:` will not work on them.
+
+    ## Classes
+
+    Being somewhat OOP, classes are a big part of Scala. They are declared using the `class` keyword. For example:
+    ```scala
+    class Person {
+        val firstName = "John"
+        val lastName = "Smith"
+    }
+    ```
+    This would declare a person class with two fields, `firstName` and `lastName`. We could create an instance of it
+    using `new Person()`. Both fields would be readable, but being `val`s, not writable. Obviously, this is 
+    not ideal. What if we want to specify our own values for these fields? For that, we need a constructor. Unlike
+    other languages, Scala doesn't make you specify your own constructor; you can just write out the parameters
+    in the class declaration. For example:
+    ```scala
+    class Person(firstName: String, lastName: String) {
+        ...
+    }
+    ```
+    Now we can use `new Person("John", "Smith")`, for example, to create a person.
+
+    That's all well and good, but what if we want to add methods to our class? For that, we can just declare a 
+    function inside the class body! For example, let's say we want our `Person` to have a method `greet` that
+    says "hello" to that person. For that, we might use:
+    ```scala
+    class Person(firstName: String, lastName: String) {
+        def greet() = println(s"Hello, $firstName $lastName!")
+    }
+    ```
+    (`s"..."` is a string interpolation construct - basically it substitutes expressions for their values in a string
+    .) Note that we don't use `self.firstName` or anything special here - we can just access `firstName` as a normal
+    variable. We can also use `this` to refer to the current object, so `this.firstName` would be valid as well, but this syntax is preferred.
+
+    What if we want the user to be able to only specify the first name? We could use a default parameter, but that
+    could get confusing. Here, the preferred method is a custom constructor. A constructor is the method that
+    creates a class; above we see it is created implicitly, by specifying fields in the class declaration. To add
+    a custom constructor, we create a method called `this`. Each custom constructor must invoke either another custom
+    constructor or the default constructor, by calling `this()` in its body; as well, each must have a different type
+    signature. So back to our current problem. To allow the user to specify only a first name, we could use:
+    ```scala
+    class Person(firstName: String, lastName: String) {
+        def this(firstName: String) = this(firstName, "")
+    }
+    ```
+    Here, when only a `firstName` is given, the `Person`'s lastname is set to `""`. (This is not the ideal solution;
+    see `Options` below.)
+
+    One interesting feature of Scala classes is that any method taking one argument can be used as an Infix operator.
+    For example, if our `Person` had a method `greet` takin one argument, the person for them to greet, we could type
+    out `object.greet("name")`. However, since it takes one argument, we could also use `object greet "name"`. This
+    is mostly useful for things like `contains` methods. However, it can also be used for operator overloading,
+    by simply naming a method the same as an operator:
+    ```scala
+    class Person(firstName: String, lastName: String) {
+        // --SNIP--
+        def +(other: Person) = this(firstName, other.lastName)
+    }
+    ```
+    Then we can do `person + person` to simulate the people getting married and the first person taking the second
+    one's last name. Note the power of this approach; users can create custom operators this way!
+
+    ## Traits
+
+    You may have heard of interfaces in other languages: they allow you to specify behavior a class *should*
+    have, but not how it implements that. Interfaces in Scala are done through traits. Traits can act like classes,
+    but they only specify methods. They may specify a default behavior for each method, but usually they only declare
+    it. To create a trait, we use the `trait` keyword:
+    ```scala
+    trait Round {
+        def roll(distance: Int)
+    }
+    ```
+    Here we define a trait for round objects, with one method, `roll`, to make them roll. Then we can create a simple
+    round object, a ball. When `roll` is called, it will print out `Rolling!`. To specify that our ball is round, we
+    use the `extends` keyword:
+    ```scala
+    class Ball extends Round {
+        def roll(distance: Int) = println("Rolling!")
+    }
+    ```
+    We can specify multiple traits using `with` (assume we have a `Red` trait here:)
+    ```scala
+    class RedBall extends Round with Red {
+        // --SNIP--
+    }
+    ```
+
+    ## Companion Objects
+
+    Companion objects are declared using `object`. They allow you to specify functionality particular to a class,
+    even if its traits might not have it. For example, in our above code to specify the red ball could also bounce,
+    we could do:
+    ```scala
+    class RedBall extends Round with Red {
+        // --SNIP--
+    }
+
+    object RedBall {
+        def bounce() = println("Bouncing!")
+    }
+    ```
+    Here the `bounce` method will be specific to `RedBall`, and not to any other classes. Note how the object and
+    class have the same name; this is what identifies them as companions. Objects can also be created on their own,
+    like in the "Hello, world!" program: we create an object of the `App` trait, which runs its body when the 
+    program is run.
+
+    One major use of objects is to add an `apply` method. An `apply` method allows you to create an object without
+    using `new` on a class. The `apply` method can take any arguments, and must return an object. For example:
+    ```scala
+    // --SNIP--
+
+    object RedBall {
+        def apply() = new RedBall()
+    }
+    ```
+    Now we can use `RedBall()` to create an instance of `RedBall`, instead of `new RedBall()`.
+
+    ## Case Classes
+
+    As you might have noticed, using bare classes can be difficult. You have to use objects to create an `apply` 
+    method, and `match`/`case` may not work right on your class. Case classes solve all that. You create
+    them simply by prefixing `class` with `case`. They function just like normal classes, but they automatically
+    get an `apply` method, and can be used in `match`/`case`. For example:
+    ```scala
+    case class Person(firstName: String, lastName: String) {
+        // --SNIP--
+    }
+    ```
+
+    `case` can also be used on objects to create enums. This works by creating a trait, then creating several
+    `case object`s that extend that trait. Then, we can use the trait to reference the enum type, and the objects
+    as enum items. For example:
+    ```scala
+    sealed trait Color
+    case object Red extends Color
+    case object Green extends Color
+    case object Blue extends Color
+    ```
+
+    ## Options
+
+    One final part of Scala is options. You may know them from Rust: they are used to represent a value that may or
+    may not be present. Recall how above we used a default value of `""` for a person with no last name. This
+    could be redone with options to be more readable:
+    ```scala
+    class Person(firstName: String, lastName: Option[String]) {
+        def this(firstName: String) = this(firstName, None)
+    }
+    ```
+
+    Then we could use `Person("firstName", Some("lastName"))` to set a lastname. Note a few things:
+
+    - `Option[String]` represents an `Option` holding a `String`. (`[]` is like `<>` in other languages.)
+    - `None` represents a null value.
+    - `Some(value)` must be used instead of just `value` when assigning an option.
+
+    Options count as container or sequence types, so we can use for-expressions or methods like `.map` to extract
+    the value:
+    ```scala
+    class Person(firstName: String, lastName: Option[String]) {
+        // --SNIP--
+        def greet() = s"Hello, $firstName ${for (n <- lastName) yield n}"
+    }
+    ```
+
+    # Closing
+
+    That concludes my Scala tutorial. Once again, I haven't covered the standard library, but it is not a core part
+    of the language. If you want to learn more, fell free to check out [their website](https://scala-lang.org), or
+    another tutorial. I know this was released a day late, but I was running a bit shotr on time. Sorry about that.
+    Anyway, thanks for reading!

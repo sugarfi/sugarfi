@@ -1,0 +1,83 @@
+title: "Language Ideas Part 2: Slang"
+time: 2020-09-01T14:45-05:00
+body: |
+    On this blog, you will periodically see articles in a series called Language Ideas.
+    This is just random ideas I have for languages. Some of them I implement, some of them
+    I don't. If I do write one, I will share it here. Anyway, on to the language:
+
+    ## Slang
+
+    Slang is a low-level, statically typed language. What makes it special is that it
+    has almost no built-in features, aside from one major thing: the macro system. Macros
+    are very powerful, and in effect allow the programmer to redesign the language to fit
+    their needs. For example, I might do something like this:
+    ```plaintext
+    macro
+        Increment(Name()) =
+        $0 = $0 + 1
+    ```
+    Here, `$0` is set to the value of the first match, in this case `Name()`. `Name` is yet another
+    macro, which matches any valid name. Macros are just substituted to form other code, so doing
+    something like
+    ```
+    Increment(a)
+    ```
+    is literally the same as doing
+    ```
+    a = a + 1
+    ```
+    Macros can be combined into much more powerful combinations, including stuff like if statements
+    or function definitions.
+
+    ### The Other Part
+
+    There is one other major part of Slang: permissions. Much like Linux file permissions, permissions
+    on a variable dictate what it can do and who can do it. All code in Slang runs in a context,
+    which is just like a block or scope. Permissions on a variable decide what a certain context can
+    do to a variable. For example, to allow code in a certain context to read from a variable, I
+    might give that variable `Readable` permissions for that context. Permissions can also take type
+    signatures: for example, I might give a variable `Readable(Int)` permissions to only allow it
+    to be read into an `Int` field or variable. Functions are implemented similarly: calling a
+    function is known as applying it, and only variables with the `Applicable` permission can be
+    applied. Combined with macros, you can use this to define functions. For example, I might do
+    ```
+    macro
+        func Type() Name() \( ZeroOrMore(Declaration()) \) Block() =
+        {
+            Alias($0, returntype)
+            Alias($1, name)
+            Alias($2, args)
+            Alias($3, code)
+            Applicable(<args>) {
+                Readable(<returntype>) <code>
+            }
+        }
+    ```
+    Here, `Alias` is a macro which functions like `#define` in C: `Alias(x, y)` is the same as
+    `#define y x`. Here `Type` is a macro which matches a type, `Name` matches a name,
+    `ZeroOrMore(Declaration())` matches 0 or more of the declaration macro, which matches something
+    like `Int a` or `String b`. Finally, `Block()` matches a block of code within curly brackets.
+    After we match all that, we alias all of the matches to something more readable. Then, we create
+    an `Applicable` permission, with parameters of the types passed (`Declaration`), to allow all
+    contexts to apply this value with the given types only. Then we give the result permissions
+    to be read into a field of the given return type. After that, we can just do something like
+    ```
+    func int add(int a, int b) {
+        return a + b
+    }
+    ```
+    to define a function.
+
+    ### The Other Other Part
+
+    Ok, I know I said that was the last part, but there's another part. In Slang, all programs would
+    be compiled to what's called a "wall". A wall is a form of IR that imports only the things it
+    uses. This includes types: if I declare no strings, strings will literally not be included in my
+    code at all. The same goes for unused variables, macros, and functions. The wall can then be
+    compiled to many formats: WASM, native binary, and others. Walls can then be packaged and published
+    to Graffiti, the hypothetically Slang package manager. This makes programs very lightweight.
+
+    ## Closing
+
+    Remember, this is all hypothetical. I do plan to try and implement Slang at some point, but hey,
+    I might not get to it. Feel free to contact me with improvements!

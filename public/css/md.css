@@ -1,0 +1,20 @@
+.md {
+    white-space: pre-wrap;
+    padding: 20px;
+    margin: 0 auto;
+}
+
+.md code, .md pre {
+    background-color: #2d2d2d;
+    padding: 3px;
+    font-size: 1rem;
+}
+
+.md p, .md pre {
+    margin: 0;
+}
+
+.md pre {
+    padding: 10px;
+    overflow-x: auto;
+}

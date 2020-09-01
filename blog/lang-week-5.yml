@@ -1,0 +1,345 @@
+title: "Lang Week Day 5: Elixir"
+time: 2020-09-01T14:51-05:00
+body: |
+    Today on Lang Week, I decided to learn Elixir. Elixir is a Ruby-like function language based on the Erlang VM.
+    Overall, I enjoyed it. Anyway, read on for the tutorial!
+
+    ## Setup
+
+    The Elixir website has an [installation page](https://elixir-lang.org/install.html). For me on Ubuntu, I can
+    install it with:
+    ```sh
+    sudo apt install elixir
+    ```
+    Then you can run `elixirc` or `elixir` to compile a file, and `iex` to get a REPL.
+
+    ## Hello, World
+
+    A "Hello, world!" program can be written simply:
+    ```elixir
+    IO.puts "Hello, world!"
+    ```
+    This can also be written as:
+    ```elixir
+    IO.puts("Hello, world!")
+    ```
+    This showcases a few principles of Elixir:
+    - Functions can be called with or without parentheses.
+    - We access methods of objects using `.`: here, `IO.puts` is the method `puts` in the `IO` object.
+    - `IO` is a module (a form of object), containg methods for I/O.
+
+    You can enter this in the REPL, or put it in a file `hello.ex` and run it with `elixir hello.ex`.
+
+    ## Literals and Math
+
+    There are several data types in Elixir. Most of the primitive ones can be expressed using literals:
+
+    - Integers are written as normal: `5`, `-5`, and `5e7` are all valid integer literals. As well, `_` can be used
+    in place of commas  in long numbers, since `_` in a number is ignored: `100_000` is the same as `100000`.
+    - Floats are also written as in other langs: `5.6`, `-5.7`, and `5.6e7.8` are all floats. As with integers, `_`
+    is ignored whenever encountered: `100_000.500_000` is the same as `100000.500000`.
+    - Strings are written using double quotes. For example: `""`, `"Hello, world!"`.
+    - Atoms, which are like Ruby symbols, are written using `:`: `:a`, `:b`, and `:c` are all valid atoms.
+
+    Math is done using the conventional operators: `+`, `-`, `*`, and `/`. However, integer division (division not
+    outputting a float) must be done with the `div` function, and modulus with `mod`. As well, strings are 
+    concatenatd using `<>`, rather than `+`. Thus, `"a" <> "b"` is `"ab"`, `5 + 6` is `11`, and `mod(5, 2)` is `1`.
+
+    ## Pattern Matching and Variables
+
+    Variables can be bound using `=`. For example, the following would set `a` to `5`:
+    ```elixir
+    a = 5
+    ```
+    However, this is not merely a variable binding operator. `=` is actually the pattern matching opreator: when
+    a pattern is a name, a single value is matched, and bound to that name. Thus, pattern matching can be used
+    like assignment. We can also use `=` to test if a pattern matches:
+    ```elixir
+    a = 5
+    5 = a
+    1 = 2
+    ```
+    The first two lines will execute: `a` is bound to `5`, and then `5` is matched against the value of `a`, or `5`.
+    However, `1 = 2` will fail, since `1` does not match with `2`. Additionally, `_` in a pattern can be used to
+    match a value and ignore it: `_ = x` will always succeed, no matter the value of `x`. Thus, pattern matching
+    can be used as a way to do ad-hoc way to compare values. However, it is not always the best solution: it will
+    error if a pattern does not match. If you only want to test if a pattern matches, you can use `case`. `case`
+    takes an expression and a block of patterns, and executes the code corresponding to that pattern. For example:
+    ```elixir
+    case x do
+        1 -> IO.puts "1!"
+        2 -> IO.puts "2!"
+        _ -> IO.puts "Not 1 or 2!"
+    end
+    ```
+    This would match the value `x`, check if it was `1` and if so output `1`, then check if it was `2` and output
+    `2`, and otherwise output `Not 1 or 2!`. Note that if not all patterns are covered, an error will be thrown.
+
+    One can specify guards using `when`. A guard is a boolean condition, that must be satisfied for the pattern to
+    match. For example, the following will match a number `x` only if `x > 5`:
+    ```elixir
+    case x do
+        x when x > 5 -> IO.puts "Match!"
+        _ -> IO.puts "No match!"
+    end
+    ```
+
+    One final note: if you want to pattern match the *value* of a variable, not bind it, you need `^`. For example,
+    the following:
+    ```elixir
+    x = 5
+    case 6 do
+        x -> IO.puts "Equal!"
+        _ -> IO.puts "Not equal!"
+    end
+    ```
+    This would print `Equal!`, since `x` is bound to `6`. Using `^` we get the desired result:
+    ```elixir
+    x = 5
+    case 6 do
+        ^x -> IO.puts "Equal!"
+        _ -> IO.puts "Not equal!"
+    end
+    ```
+
+    ## Functions
+
+    Almost everything in Elixir is a function: this includes operators like `+` and `*`. Functions are denoted
+    (outside of code) using their name and arity, or the number of arguments they take. Thus, the 2-argument version
+    of `+` is denoted `+/2`, and the 1-argument version `+/1`.
+
+    Anonymous functions are created using `fn`. For example:
+    ```elixir
+    a = fn a, b -> a + b end
+    ```
+    This binds `a` to an anonymous function taking two arguments and returning their sum. We can then call it using:
+    ```elixir
+    a.(1, 2)
+    ```
+    Note the `.`; this is necessary for calling anonymous functions.
+
+    As mentioned above, operators are functions. However, you will find that you cannot call them like normal;
+    doing `+(1, 2)`, for example, will error. For this, we need `&`. `&` converts an operator to an anonymous 
+    function. Thus, to call `+` like a normal function, we can do:
+    ```elixir
+    (&+/2).(5, 6)
+    ```
+    This is one of the few places where `func/arity` notation is used in code.
+
+    Functions use pattern matching, so arguments don't have to be just names. The following is valid:
+    ```elixir
+    a = fn 3, _, x -> x end
+    ```
+    When clauses may also be used:
+    ```elixir
+    a = fn x when x > 5 -> x end
+    ```
+
+    ## Lists and Maps
+
+    There are two main sequence types in Elixir:
+
+    - Lists. This sequence type allows arbitrary elemtents of one type, and is singly linked. They are created using
+    `[]`: `[1, 2, 3]`, `[]`, and `[1]` are all valid lists.
+    - Tuples. Tuples allow arbitrary types; they are stored as contiguous elements in memory. They are created using
+    `{}`: `{1, 2, 3}`, `{}`, and `{1}` are all valid tuples.
+
+    Both lists and tuples can be pattern matched, using their constructor syntax. For example, the following function
+    will accept any three-element list starting with 1 and return the last element:
+    ```elixir
+    f = fn [1, _, x] -> x end
+    ```
+    The same can be applied to tuples:
+    ```elixir
+    f = fn {1, _, x} -> x end
+    ```
+    Note that if the length of the pattern does not match the length of the list/tuple, an error is thrown.
+
+    Lists can be concatenated with the `++` operator: `[1] ++ [2]` is `[1, 2]`. As well, you can use `|` to access
+    the head and tail of a list in a pattern. The following function will return the first element of a list:
+    ```elixir
+    f = fn [head | tail] -> head end
+    ```
+    In the body of `f`, `head` would be set to the first element of the list, and `tail` to every element after that.
+    The `|` operator can also be used to add an item to a list: `[a | [b]]` will result in `[a, b]`.
+
+    Lists can also be indexed using `Enum.at`. `Enum.at x, y` is the same as `x[y]` in other languages.
+
+    Additionally, Elixir has keyword lists. These are basically lists of options: they are represented as series of
+    tuples, comprised on an atom and a value. An example keyword list is `[{:a, 1}, {:b, 2}]`. Because they are so
+    common, syntatic sugar is available: `[a: 1, b: 2]` is the same as the former. Keyword lists are unordered,
+    and adding elements to them will overwrite old elements with the same key. Since they are commonly used as
+    function arguments, *more* syntatic sugar is provided: if a keyword list is the last argument of a function, the
+    brackets may be left off. For example, the following:
+    ```elixir
+    f 1, a: b, c: d
+    ```
+    Is the same as `f 1, [a: b, c: d]`.
+
+    However, keyword lists are not always the best solution. What if you need your keys to be something other than
+    keywords? For that, Elixir has maps. Maps are like dictionaries in other languages: they map keys to values.
+    A map is created using `%{}`, for example:
+    ```elixir
+    %{a => b}
+    ```
+    The above would create a map mapping `a` to `b`. Maps can be indexed using `[]`, or, if the key is an atom,
+    `.`:
+    ```elixir
+    %{5 => 6}[5]
+    %{:a => :b}[:a]
+    %{:a => :b}.a
+    %{5 => 6][4]
+    %{:c => :d}.a
+    ```
+    The first three lines would execute fine, resulting in the desired value. However, the last two would fail, since
+    the key is not present.
+
+    ## If, Cond, and Loops
+
+    Sometimes you ant to match a value without pattern matching. That's where `if` and `cond` come in. `cond` is like
+    `case`, but it matches by value, not by pattern; it checks a series of conditions, and when one is true executes
+    the code for it. For example:
+    ```elixir
+    cond do
+        x > 5 -> IO.puts "x > 5"
+        true -> IO.puts "x <= 5"
+    end
+    ```
+    This will check if a value `x` is greater than `5`. Note the `true` clause; this is used like `_` in `case`, as
+    a fallback.
+
+    `if` is similar, behaving as in other languages. For example:
+    ```elixir
+    if x > 5 do
+        IO.puts "x > 5"
+    else
+        IO.puts "x <= 5"
+    end
+    ```
+    This will behave just like the above. One thign to note is that no `else if` construct exists; for that, use
+    `cond`.
+
+    Note that both `if` and `cond` (as well as `case`) can be used as expressions.
+
+    Most loops are done through recursion. However, one notable exception is comprehensions. Comprehensions are
+    expressions that generate a list from a loop. A comprehension is composed of the word `for`, followed by
+    generators, followed by filters. Generators are expressions which take a named value from a sequence; they are
+    written using `<-`. Filters are boolean expressions that, if falsy (`false` or `nil`) will skip the current
+    iteration. Last comes the loop body. For example:
+    ```elixir
+    for i <- list, i > 5, do: i
+    ```
+    This will return every element in `list` that is greater than `5`.
+
+    ## Strings, Charlists, and Binaries
+
+    As mentioned above, Elixir has normal strings, like most languages. However, it also supports charlists and
+    binaries.
+
+    - Charlists are used mainly for interfacing with legacy Erlang code. They are written using single quotes, and
+    represent a raw list of numbers, each representing a Unicode codepoint. They behave just like normal lists,
+    and can be matched and concatenated as such.
+    - Binaries are a bit more complicated. Binaries are really a subset of a type called bitstrings. Bitstrings are
+    written using `<<>>`, and represent a sequence of bytes in memory. They do not have any notion of Unicode;
+    they simply denote raw bytes. Strings themselves are really just more advanced bitstrings; `<>`, the string
+    concatenation operator, actually operates on bitstrings. By default, bitstrings store each codepoint as
+    8 bits, but you can change this using `::`. Let's say we have a bitstring `<<1 2 3>>`. Normally this would take
+    up 24 bits. However, using `::`, we can make it 3 bits: `<<1::1 2::1 3::1>>`. The `::1` specifies the size,
+    which can be any number. Back to binaries. Binaries are simply bitstrings where the size of each element is a
+    multiple of 8. Nothing more.
+
+    ## Modules and Named Functions
+
+    You might have wondered why I didn't cover named functions; that is because they are only accessible when used
+    in a module. Modules are just a way to organize Elixir code; they are created with `defmodule`. Functions inside
+    a module are similar to `fn` functions, are are created with `def`. Let's look at an example:
+    ```elixir
+    defmodule MyModule do
+        def func(x) do
+            x
+        end
+    end
+    ```
+    This defines a module `MyModule` with a single function, `func/1`, that takes an argument and returns it. But
+    how can we invoke this code? If we are in the REPL or in that same file, we can use `MyModule.func x`, where
+    `x` is a value. However, usually we use modules to split code across files. Luckily, Elixir makes this simple:
+    first we put our module in a file, say `MyModule.ex`. Then we use `elixirc MyModule.ex` to compile it. This will
+    create a new `.beam`, file containing Elixir bytecode. Then from anywhere in that directory, we can access
+    `MyModule.func` as if we were in that file. We can use `when` and patterns like normal in the `def` declaration.
+
+    Default arguments can be specified using `\\`:
+    ```elixir
+    defmodule MyModule do
+        def func(x, y \\ 0) do
+            x + y
+        end
+    end
+    ```
+    This defines `func` to take one argument and return it, optionally adding a second argument. We can also define
+    multiple signatures for `func`:
+    ```elixir
+    defmodule MyModule do
+        def func(x) do
+            IO.puts "One argumemt"
+            x
+        end
+        def func(x, y) do
+            IO.puts "Two arguments"
+            x + y
+        end
+    end
+    ```
+    This defines two seperate behaviors for when `func` is given one or two arguments.
+
+    Modules can also be used to define structs. A struct is like a map, but with set fields. Structs can be defined
+    in a module using `defstruct`:
+    ```elixir
+    defmodule MyStruct do
+        defstruct [:a, :b, :c]
+    end
+    ```
+    This creates a struct `MyStruct` with fields `a`, `b`, and `c`. We can create an instance of it using
+    `%MyStruct{a: 1, b: 2, c: 3}`, where `1`, `2`, and `3` can be any values. We can also leave off any or all of the
+    fields, in which case they will be set to `nil`. We can specify our own defaults in the struct declaration:
+    ```elixir
+    defmodule MyStruct do
+        defstruct a: 1, b: 2, c: 3
+    end
+    ```
+    This sets the defaults for `a` to `1`, `b` to `2`, and `c` to `3`.
+
+    ## Errors
+
+    Errors are raised whenever something happens that is not meant to happen in the code. This includes things like
+    adding a string to a number or a stack overflow. We can use `raise` to raise our own errors:
+    ```elixir
+    raise "Error"
+    raise ArgumentError, message: "ArgumentError"
+    ```
+    The first line will raise an error with text `Error`; the second will raise an `ArgumentError` with the text
+    `ArgumentError`. We can use modules to create our own errors:
+    ```elixir
+    defmodule MyError do
+        defexception message: "Default MyError"
+    end
+    ```
+    This allows us to use the custom `MyError` type with `raise`. We can use `try`/`rescue` to catch an error:
+    ```elixir
+    try do
+        raise MyError
+    rescue
+        MyError -> IO.puts("Handling error")
+        ArgumentError -> IO.puts("Hmm? ArgumentError?")
+    end
+    ```
+    Note the similarity between `case` and `rescue`.
+
+    This construct is actually not used a lot in Elixir code; instead, many functions return a tuple, the first item
+    being either `:ok` or `:error`, the second being either data or the reason for the error. You then use `case`
+    to match it.
+
+    # Closing
+
+    That concludes my Elixir tutorial. Note that I did leave out some things, so this tutorial is a bit minimal;
+    however, it covers the basics. You can check out the [Elixir Website](https://elixir-lang.org/) for more info.
+    Anyway, thanks for reading!

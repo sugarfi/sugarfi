@@ -1,0 +1,49 @@
+title: "Language Ideas Part 2: Sym"
+time: 2020-09-01T14:46-05:00
+body: |
+    Welcome to another language idea, by me, sugarfi. This language is a bit more esoteric than 
+    the last one, but still cool. Enjoy!
+
+    ## Sym
+
+    Sym is a very simple esolang. There are only two types of expression: symbols and rules.
+    A symbol is just like in any other language: it's a single value. A rule is just like a
+    macro: it maps symbols to other symbols. A symbol is simply written as a single character.
+    A rule is denoted like this:
+    ```
+    rulename.args -> out
+    ```
+    Where args is a list of symbols. The syntax `rulename.args` is used to denote applying a rule
+    to `args`. For example, the rule
+    ```
+    r.ab -> ba
+    ```
+    applied to `ab` outputs `ba`. However, that same rule applied to `cd` outputs `cd`, since the rule
+    does not modify it. Rules are recursive, and are applied until there are no matches anymore. Thus, the
+    rule
+    ```
+    r.a -> aa
+    ```
+    would output an expontially-growing infinite line of `a`s.
+
+    ### Unbound Symbols
+
+    This might all seem pretty useless. What if I wanted to match multiple symbols? Do I just write out thousands
+    of rules? No! Sym has a feature called "unbound symbols". An unbound symbol is just a symbol that
+    has no value, but is substituted in when replaced by one. An unbound symbol is denoted as a symbol name with a line
+    over it. That might be a bit confusing, so here's an example:
+    ```
+    r.a̅b -> ba̅
+    ```
+    Here we define a rule taking one symbol followed by a `b`, that replaces it with a `b` followed by that symbol.
+    For example, `r.eb` evaluates to `be`. When we do that application, `a̅` is given the value `e`.
+
+    ### Possibility?
+
+    Even with such a simple syntax, I personally think it would be possible to do thing like calculate math
+    in Sym. I think it is Turing complete, but I'm not sure. If you have a proof or disproof, please share it
+    with me and I will update this post!
+
+    ## Closing
+
+    Again, this language is totally hypothetical. I might implement it at some point but hey, you never know.

@@ -1,0 +1,88 @@
+title: The Problem with Iterators and Another Solution
+time: 2020-09-01T14:47-05:00
+body: |
+    Iterators are a construct found in many languages. The principle is that there is a collection
+    of elements, which you access by popping one item at a time from the iterator, so to speak.
+    The element, once popped, is gone forever. Iterators thus are a one way construct: you can only
+    take elements, and never push. There are, in my opinion, several problems with this construct:
+
+    - Copying iterators can be an expensive operation. For example, let's say I had an iterator `i`,
+    and I want it to be a `Vec<i32>`. In Rust, I would simply use:
+    ```rust
+    let v = i.collect::<Vec<i32>>();
+    ```
+    Then `v` would then hold a `Vec` with all of the elements of `i`. However, this can be very
+    problematic if I want to use the iterator later. Using `i.collect` pops each element from the
+    iterator, and as I said before, an element that is popped cannot be accessed again. Thus,
+    we can never access `i` after creating `v`. One way around this is to copy the iterator
+    before using `collect`:
+    ```rust
+    let v = i.clone.collect();
+    ```
+    Now `v` holds a vector of the elements in `i`, and we can still access `i` just fine. However,
+    this raises a new problem: if we use `.clone` on every iterator we use, it could get expensive
+    very quickly. Thus, iterators lead to both inconvenience and inefficiency.
+
+    - You might think a way around the previous issue would be to simply not use iterators. Unfortunately,
+    that is not an option: in a lot of langs, in this case Rust, iterators are very much overused! Rust,
+    rather than having `.map`, `.filter`, etc. operations on every sequence type simply puts all of them
+    in iterators. Thus, if we want to apply almost any operations to a list, we need to create an iterator,
+    which in all likelihood we will simply `.collect` back into its original type! If Rust would just use iterators
+    less, this could make it a lot less confusing, and even improve efficiency, since iterators would
+    not need to be constantly created and destroyed.
+
+    - As well, iterators have no good way to do lookaheads. By that I mean taking an arbitrary item, not just the next
+    one. With an ordinary list, I can just do `i[n]` to get the `n`th item in `i`. With an iterator, I have to do
+    something like:
+    ```rust
+    i.next();
+    i.next();
+    i.next();
+    // ... repeat n times ...
+    let value = i.next();
+    ```
+    This might not seem like *that* big of a problem, but it can get annoying quickly. As well, what if I want to get one element
+    without dropping every other element before that? I have to either use a clone of the operator, which as said above can
+    be expensive, or use a ridiculous amount of variables, leading to code like this:
+    ```rust
+    let a = i.next();
+    let b = i.next();
+    i.next();
+    i.next();
+    // -- SNIP --
+    let value = i.next();
+    ```
+
+    ## An Alternative
+
+    Based on the above, two possible solutions come to mind:
+
+    - Just let operations on iterators apply to lists instead, and remove iterators entirely.
+    - Modify iterators to be more sane.
+
+    You might wonder why you would choose the second option. This begs the question, why have iterators to being with? In Rust, the answer
+    is simple: it's easier to have one class with lots of methods than many classes with a few methods. That is, by only having methods like
+    `.map` and `.filter` on iterators, and then just providing methods to convert other types to operators, the developers are able to save themselves
+    from defining those methods over and over again for every iterable type. (Some might argue this is not really worth it, but if you feel that way
+    you can use the first option.) So to answer our first question: the second option helps maintain simplicity in the language, and avoid redefining 
+    methods on every type.
+
+    Anyway, since I know you're all wondering, the second option, in essence, would just by another type, with the following features:
+
+    - All methods are non-mutable by default, with an option to enable mutability. That is, `.next` returns the next item in the iterator, but `.next(true)`
+    returns the next item and removes it from the iterator. This helps prevent excessive cloning, as described in the first and third issues. This also allows
+    for easier conversion to other types, without dropping the whole iterator.
+
+    - Arbitrary indexing is allowed and encouraged. Like described above, the iterator can be indexed like a list or vector, without using `.next`. There ideally
+    would also be a `.get` method or simialr that allows passing a parameter to drop the selected element.
+
+    - The iterator can easily be coerced to other types. This is one of the few times I approve of implicit type coercion. The main problem with this feature is that
+    it is most likely controlled by the language, rather than the implementation. However, one could overload a type casting operator, or create a `.as` method
+    to convert the iterator to another type.
+
+    - The iterator may be reset, ie. all operations previously run on it are undone. This would allow for better passing around and copying of iterators.
+
+    # Closing
+
+    That may seem like a short list, but in my opinion it addresses all of the core problems with iterators. Note that this article focuses mainly on Rust;
+    these concepts may or may not be applicable to other languages. Anyway, feel free to contact me with any issues or suggestions, and thanks for reading!

@@ -1,0 +1,11 @@
+name: sugarfi-dev
+version: 0.1.0
+
+authors:
+    - sugarfi <sugarfi@sugarfi.dev>
+
+dependencies:
+    kemal:
+        github: sugarfi/kemal
+
+license: MIT

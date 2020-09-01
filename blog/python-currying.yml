@@ -1,0 +1,87 @@
+title: Implementing Currying in Python
+time: 2020-09-01T14:47-05:00
+body: |
+    Currying is great. It makes many list operations (`map`, `fold`, etc.) much easier, and allows for cool
+    stuff like function composition. For example, in Python you have to do:
+    ```python
+    map(lambda a: a + 1, list)
+    ```
+    to increment every item in a list, whereas in Haskell (a curried lang) I can just do:
+    ```haskell
+    map (+1) list
+    ```
+    I was thinking about this recently, and I thought, what if Python had currying? Then I realized this
+    would not be hard to implement. In this tutorial, I will describe the process, and at the end you
+    will be able to curry functions in Python.
+
+    ## The Principle
+
+    So what is currying? Basically, instead of taking all of its arguments at once and creating a value,
+    a curried function takes one argument and returns a function, to which you pass the next argument,
+    which returns a function, and so on, until eventually you get the value. For example, if we had
+    a function:
+    ```python
+    def add(a, b, c):
+        return a + b + c
+    ```
+    I would normally call it by doing `add(a, b, c)`. However, with currying, I would do `add(a)(b)(c)`.
+    Why is this useful? Like I said above, it makes list operations much easier. For example, using the function:
+    ```python
+    def add(a, b):
+        return a + b
+    ```
+    We could increment every item in a list by doing `map(add(1), list)` rather than `map(lambda a: a + 1, list)`.
+
+    ## Step 1: The Container
+
+    First we need a container class. It will be used to represent one step in a curried operation. It has three fields:
+    `f`, the curried function, `args`, the arguments used to get to this point, and `val`, the value. You may wonder why
+    we can't just return the value directly. The reason a `val` field is used instead is because the curried function may
+    have a variable arity, and we want the user to be able to extract a value at any point. `val` is calculated as follows:
+    ```python
+    try:
+        self.val = self.f(*self.args)
+    except TypeError:
+        self.val = None
+    ```
+    The container class has a `__call__` method, allowing it to be applied to more arguments. The full code for this class is:
+    ```python
+    class Curried():
+        def __init__(self, f, *args):
+            self.f = f
+            self.args = args
+            try:
+                self.val = self.f(*self.args)
+            except TypeError:
+                self.val = None
+        def __repr__(self):
+            return f'Curried({repr(self.val)})'
+        def __call__(self, arg):
+            return Curried(self.f, *self.args, arg)
+    ```
+    Note that the `__repr__` method is just for convenience.
+
+    ## Step 2: The Decorator
+
+    At the moment, we could do `Curried(f)` to create a curried version of the `f` function. So we will define a simple
+    decorator for convenience:
+    ```python
+    def curry(f):
+        return Curried(f)
+    ```
+
+    ## Step 3: Profit
+
+    Now we're done! Let's try out our code with a simple example:
+    ```python
+    @curry
+    def add(a, b):
+        return a + b
+    ```
+    Try doing `add(5)(6)`. It should work fine, producing `Curried(11)`. Then you can just access the `.val` property to get
+    it as an integer! For even more fun, try our example from earlier: `map(add(1), [1, 2, 3, 4])`. It should work just as well!
+
+    # Closing
+
+    I hope you enjoyed this simple tutorial. I find currying an interesting concept, and Python in my opinion is a good language
+    for prototyping. Thanks for reading!

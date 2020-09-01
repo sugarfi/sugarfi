@@ -1,0 +1,15 @@
+title: "Latest Project: HappyChat"
+time: 2020-09-01T14:48-05:00
+body: |
+    A user on repl.it recently announced they were hosting a community game jam. The theme was 
+    "sticking together". Naturally, I *had* to enter. My first idea was to make a horror game of
+    sorts: you have a group of people, and you have to make sure they don't go insane and/or kill
+    themselves. I started designing it in Phaser.js right away. Unfortunately, that didn't really work
+    out. Then I tried to recreate that as a terminal game. It worked out fine, but as we all know,
+    terminal games suck and are bad. I was about to submit my terminal game when I had a better idea:
+    HappyChat. The premise is simple: there is one global chatroom, with sentiment analysis. Each message
+    is scored based on how happy it is, and that score is added to a global happiness meter. When that meter
+    reaches 0, the person who brought it down is muted for 1 minute. I wrote it pretty quickly, and posted it.
+    It did much better than I expected. Within 3 days, it was top on both trending and hot on Repl Talk.
+    I'm hoping that it does well enough to win the game jam. If it doesn't, I don't mind that much: just seeing
+    its success was a great experience. You can join it [here](http://happy.sugarfi.repl.co).

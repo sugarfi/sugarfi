@@ -1,0 +1,41 @@
+title: Why SQLite is the Best Database
+time: 2020-09-01T14:47-05:00
+body: |
+    SQLite is my personal favorite database. It is basically the 
+    same syntax as other SQL variants, but it is much more 
+    lightweight, and I personally prefer it to NoSQL and other 
+    databases. In this article, I will describe the two reasons
+    why.
+
+    ## Lightweight
+
+    As you might have guessed, SQLite is very lightweight. It 
+    doesn't have nearly as many functions as other SQL variants.
+    This may seem like a bad thing, but it can actually be good:
+    hackers can't do a time-based attack if there is no `SLEEP`
+    function! As well, this means SQLite is super simple and easy
+    to use, and is easy on your system.
+
+    ## File-based
+
+    The best thing, in my opinion, about SQLite is that it is file-based.
+    All that means is that it stores data in a file instead of on a server.
+    This is good for several reasons: one, it's easy to protect your data:
+    just change the file permissions! Two, it is stable. With MongoDB, if a 
+    server goes down, you cannot access your database. With SQLite, the only server
+    is your own. Finally, it's easy to delete or clear your database: you just
+    remove the file. This can be very useful in development if you mess something up.
+    As an added benefit, because it just writes to a file buffer, SQLite can also
+    store data in RAM.
+
+    ## Disadvantages
+
+    Of course, SQLite isn't perfect. There is one major problem with it that I can think of:
+    data is not encrypted. Unless you hash the data yourself, SQLite stores it in cleartext in a file.
+    Of course, you can easily get around this using file permissions or just basic encryption,
+    but it should be taken into account.
+
+    # Closing
+
+    That's pretty much it for this article. I hope you consider using SQLite for your next database project.
+    Thanks for reading!

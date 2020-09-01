@@ -1,0 +1,155 @@
+title: "Lang Week Day 1: Io"
+time: 2020-09-01T14:50-05:00
+body: |
+    For the first day of Lang Week, I chose to learn Io. Io is a small language, inspired
+    by Smalltalk. Overall, it is pretty intersting, and I enjoyed learning it.
+
+    ## Background
+
+    According to [the website](https://iolanguage.org),
+
+    > Io is a programming language focused on expressiveness through simplicity.
+
+    The designer also says on that website that Io is inspired by Smalltalk. However, the site
+    says that development of Io stopped in 2008. Oh well... Despite this, I have seen it used
+    numerous times in Code Golfing, and binaries are still available.
+
+    ## Setup
+
+    The easiest way to setup and install Io is using one of the [binaries](http://iolanguage.org/binaries.html)
+    on their website. However, the [guide](http://iolanguage.org/guide/guide.html) also contains instructions
+    for building from source. For me on Ubuntu, I can simply install it using:
+    ```sh
+    wget http://iobin.suspended-chord.info/linux/iobin-linux-x64-deb-current.zip
+    unzip iobin-linux-x64-deb-current.zip
+    sudo apt install ./IoLanguage-2013.11.04-Linux-x64.deb
+    ```
+    Then you can run the `io` command to get an Io prompt.
+
+    ## The Tutorial
+
+    Now on to the fun part: as promised, I will try to now write a tutorial, explaining my somewhat basic knowledge
+    of Io. Hopefully it's helpful, and is not just a copy-paste of the guide above. Enjoy!
+
+    ### Part 1: Basic Expressions
+
+    Basic expressions are mad up of literals, operators, calls, and messages. All of these are relatively simple
+    constructs, so I'll try to cover them one by one, starting with literals. Literals work how you would expect:
+    you can have names, number literals, which may be floats or integers, and string literals, enclosed in `"`. (Comments
+    can be done using the traditional `//` and `/* */`, as well as `#`.) For example:
+    ```io
+    5 // This is a number
+    -5 // So is this
+    5e6 // As is this
+    5.76 // And this
+
+    "abc" // These are both strings
+    ""
+    ```
+    You'll notice that entering these expressions in the REPL simply outputs their value. This is because they are just that: values.
+    They may be used as expressions or as parts of other expressions.
+
+    ### Part 2: Operators
+
+    Things get a bit more interesting when you add operators. They work like you would expect: `+` and `-` for addition and
+    subtraction, `*` and `/` for multiplication and divison. Precedence works like in C, and you may use parentheses to group
+    expressions. For example:
+    ```io
+    5 + 5 // ==> 10
+    6 * 7 // ==> 42
+    (5 + 5) * 10 // ==> 100
+    ```
+
+    ### Part 3: Messages and Calls
+
+    The real core of Io is messages. A message is like a method call in other languages. Before we get into that, though, it will
+    help to understand how Io objects work: each object has a set of slots, which map names to values. These values can be anything.
+    Each object also has a set of protos, which are like parent classes. When I attempt to access a slot on an object, it first
+    checks for that slot in its set. If it is not found, it checks each of its protos in turn. If none of them has it, an error
+    is thrown. Slots may be callable or just be variables. Slot access is done using the syntax `a b`, where `a` is an object and `b`
+    is a slot. If `b` is a value, it will be returned; if it is a callable object, it will be invoked and its return value returned.
+    An example slot on most objects is `println`. Used on an object, it prints its value. For example, the following:
+    ```io
+    "Hello, world!" println
+    ```
+    Will invoke the `println` slot on `"Hello, world!"`, thus outputting it to the screen. Calling a slot like this is known as a
+    message. Of course, this might not always be the most adequate: what if we want to pass specific data? To do that, you can pass
+    arguments to the slot: for example, the program `a b(c)` would invoke the `b` slot of `a` with the argument `c`. This syntax
+    is in fact used to implement operators: `a + b` is the same as `a +(b)`. More generally, `a op b` is the same as `a op(b)`.
+    Messages can be invoked "globally", so to speak, as well. When a message is run without a reciever (left hand side), it is
+    run on the current object. In global scope, this is called the Lobby.
+
+    ### Part 4: Control Flow and Dynamic Evaluation
+
+    Another interesting feature in Io is the lack of keywords. All control flow is implemented as messages. How can this be, you ask?
+    Wouldn't certain things have to keywords. In Io, they do not, thanks to dynamic evaluation. Dynamic evaluation is a feature
+    of certain methods (callable slots) where certain arguments are not evaluated until the function explicitly calls for them;
+    this allows postponing of operations and things of that nature. A simple example is `ifTrue`. When applied to an object, it
+    checks it for truthiness, and then runs a message if it is true. For example, the code:
+    ```io
+    true ifTrue("hi" println)
+    ```
+    Would output `hi`. However, `ifTrue` uses dynamic evaluation, so that if we changed the `true` to a `false`, nothing would happen,
+    unlike most languages, where `hi` would be printed regardless. Thus, control flow can be accomplished in a few simple functions:
+
+    - `ifTrue(message)` and `ifFalse(message)`: evaluates `message` in the reciever is true or false, respectively.
+    - `if(expr, t, [f])`: evaluates `t` if `expr` is truthy, or `f` if it is present and `expr` is falsy.
+    - `while(expr, body)`: evaluates `body` while `expr` is truthy.
+    - `loop(body)`: evaluates `body` forever.
+
+    (In all loops, `break` and `continue` may be used, respectively.) 
+
+    ### Part 5: Variables and Methods
+
+    Variables are assigned using operators, so in effect assigning a variable is the same as using a method, as we see above. There
+    are two main ways to assign: you use `name := value` to declare and initialize the slot `name`, and `name = value` to update
+    `name` after it has been declared. Both of these syntaxes are just shorthand for `setSlot` and `updateSlot`, methods which
+    create and update slots on an object. By default, this is the Lobby, so assigning at the top level sets a slot on Lobby.
+    Slots may be created on arbitrary objects. To create a callable slot, you can use `method` or `block`. Both take a list of
+    arguments and a message or program to execute as arguments. Thus, the following:
+    ```io
+    add := method(a, b, a + b)
+    add(5, 6) println
+    ```
+    Would output `11`, since it calls `add` and then outputs the result. These may also be created on arbitrary objects. `block`, as
+    said above, behaves the same way, with one difference: when called, a `block` uses the scope from when it was created for slot
+    lookup, and `method` uses the reciever.
+
+    ### Part 6: Objects and Lists
+
+    Lists are created using the `list` method. For example, `list(1, 2, 3)` would return a list with the elements `1`, `2`, and `3`.
+    Lists can be indexed using `[]`, and start from `0`: thus, `list(1, 2, 3)[0]` would output `1`. Objects can be used to create
+    custom types. To create a custom type, we use the `clone` method on object:
+    ```io
+    MyType := Object clone
+    ```
+    Then we simply set slots and methods on `MyType`, and it will behave like any other type. We may also set an `init` slot, so
+    that whenever this type is cloned or initialized, we can run certain code. (Objects are also created using `clone`.) When
+    accessing a slot on a custom type, the same proto rules apply, so the parent will be searched if it is not found on the object.
+    Thus, we can also use `clone` o implement inerhitance. In a method on a type, the `super` slot can be used to send a message
+    to the parent; in the above, doing the following:
+    ```io
+    MyType f := method(a, super(f(a)))
+    ```
+    This would lead the `f` method, when called, to invoke the `f` method on `Object`, with the same argument passed. You can also
+    use the `resend` message, to send the current message, verbatim, to the parent. Finally, if a `forward` method is defined,
+    when a method does not exist, before searching the protos, the `forward` method will be invoked.
+
+    ### Part 7: Exceptions
+
+    Io uses exceptions to handle errors. If any code is invalid or cannot be run, an exception will be thrown. Like most languages,
+    `try` and `catch` can be used to handle these exceptions. `try(code)` will execute code, and if it throws an exception,
+    return that exception, rather than raising it. (The `raise` method on exceptions can be used to throw them, for example:
+    `Exception("test") raise`.) Then, we can use the exception's `catch` method to handle it. `catch` takes two arguments: a
+    type of exception and some code. If the reciever is the same type as the argument, the code will be run. Many times, you will use
+    a series of `catch`es. If all of them fail, `pass` can be useful: it passes the exception up to the next handler, effectively
+    raising it in the parent.
+
+    # Closing
+
+    Well, that finishes up the Io tutorial. Overall it is a very interesting language, and I would recommend digging deeper into it
+    if you also think so. A great place to start is [the guide](http://iolanguage.org/guide/guide.html), which covers some topics
+    I did not, and also has a bit more in-depth explanations. Note that I neglected to cover things like file I/O and sockets; those
+    things are not part of the core language, and can be learnt elsewhere. I might keep doing this for other languages, but I don't
+    know. If a language's standard library appears very important to it, I will cover it; with Io, it almost seems like a side effect.
+    Anyway, thanks for reading!

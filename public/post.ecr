@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>sugarfi | <%= post[0] %></title>
+        <link rel="stylesheet" href="/css/style.css">
+        <link rel="stylesheet" href="/css/md.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/themes/prism-tomorrow.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.0/css/OverlayScrollbars.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.0/js/OverlayScrollbars.min.js"></script>
+    </head>
+    <body>
+        <main>
+            <h1><%= post[0] %></h1>
+            <time datetime="<%= post[1] %>">Posted on <%= post[1].to_s "%F %I:%M %P" %></time>
+            <a href="/">Back to home</a>
+            <p class="md">
+                <%= post[2] %>
+            </p>
+        </main>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                OverlayScrollbars(document.querySelectorAll("body"), {
+                    className: "os-theme-light",
+                });
+            });
+            const converter = new showdown.Converter({'ghCodeBlocks': true});
+            document.querySelectorAll("main > .md").forEach(e => {
+                e.innerHTML = converter.makeHtml(e.innerText.trim());
+            })
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/components/prism-core.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/plugins/autoloader/prism-autoloader.min.js"></script>
+        <footer>
+            Copyright 2020 sugarfi
+        </footer>
+    </body>
+</html>

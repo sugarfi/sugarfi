@@ -1,0 +1,268 @@
+title: "Lang Week Day 3: Clojure"
+time: 2020-09-01T14:52-05:00
+body: |
+    Today on Lang Week, I learned Clojure. Overall I enjoyed it; Lisps are cool in my opinion. This is one
+    language where the standard library is somewhat impotant, so I'll cover a bit of it. Anyway, here is the
+    tutorial:
+
+    ## Setup
+
+    The [Clojure website](https://clojure.org) has an 
+    [installation guide](https://clojure.org/guides/getting_started) for various platforms. For me on Ubuntu,
+    I can install it using:
+    ```sh
+    curl -O https://download.clojure.org/install/linux-install-1.10.1.561.sh
+    chmod +x linux-install-1.10.1.561.sh
+    sudo ./linux-install-1.10.1.561.sh
+    ```
+    Then you can run `clojure` to get a REPL.
+
+    ## Lisp Syntax
+
+    For this tutorial, I will assume you already understand Lisp syntax. If you don't, here's a basic guide:
+
+    - Lisp uses S-expressions, where all code is written in the form `(func arg1 arg2 ...)`
+    - The code `(a b c)` is the same as `a(b, c)` in other languages.
+    - All aspects of a program can be written this way, including variables and control flow.
+
+    If that doesn't cover it (and it might not), I would recommend doing further research on the Internet.
+
+    ## Literals and Math
+
+    Literals can be written in several ways:
+
+    - Numbers are written as normal: `5`, `06`, `0xff`, and `36rCRAZY` (`CRAZY` in base 36) are all numbers.
+    - Strings are written as an arbitrary amount of characters enclosed in `""`. For example, `""` or `"abc"`.
+    - Characters are written as a `\` followed by the character, for example `\a` or `\b`.
+    - Regular expressions are written as a `#` followed by a string, for example `#"[0-9]+"`.
+    - Booleans and nil are written as `true`, `false`, and `nil`, respectively.
+    - Keywords, which are like symbols in other languages, are written using `:`, for example `:a` or `:b`.
+    - Names are written as a sequence of almost any characters, for example `a`, `b-c`, or `d'`.
+
+    These literals can be used anywhere a value is needed.
+
+    Math is done using several functions, which all behave as you'd expect:
+
+    - `+`: addition. `(+ 5 5)` is `10`.
+    - `-`: subtraction. `(- 5 3)` is `2`.
+    - `*`: multiplcation. `(* 5 2)` is `10`.
+    - `/`: division. `(/ 4 2)` is `2`.
+    - `mod`: modulus. `(mod 5 2)` is `1`.
+
+    ## Variables
+
+    We'll start off with something simple: variables. As described in the intro, all code is written as S-expressions
+    , even assignment. Variables are created using `def`. The arguments to `def` are the name of the variable
+    followed by its value. For example, the following would set `a` to `5`:
+    ```clojure
+    (def a 5)
+    ```
+    Any expression can be used as the second parameter, including other variables. For example:
+    ```clojure
+    (def a 5)
+    (def b (+ 6 (* a 7))
+    ```
+    This would set `a` to `5` and `b` to `41`. Clojure is dynamically typed, so any value can be used as the variable
+    value. As well, we can use `def` to redefine a variable:
+    ```clojure
+    (def a 5)
+    (def a 6)
+    ```
+    Here `a` would be set to `6`. Of course, top-level bindings are not always best. What if we only want to use the
+    variable for a little while? For that, we can use `let`:
+    ```clojure
+    (let [a 5
+          b 6]
+        (println a b))
+    ```
+    This would print out `5 6`. Let me explain a few things here:
+
+    - `println` prints data to stdout with a newline.
+    - `let` takes a list of name-value pairs and binds them in its body. We cannot use the variables `a` and `b` 
+      outside of this body.
+
+    ## Defining Functions
+
+    As you might expect, we can also define our own functions. This can be done using `fn`. `fn` takes a list of
+    arguments and a body, and returns a function. Then we can use `def` to bind it. For example:
+    ```clojure
+    (def add (fn [a b] (+ a b)))
+    ```
+    Of course, this can be cumbersome in large programs. Thus, `defn` is provided. `defn` combines `def` and `fn`.
+    For example, the above could be rewritten as:
+    ```clojure
+    (defn add [a b] (+ a b))
+    ```
+
+    ## Control Flow
+
+    Control flow is done through several special forms: `if`, `loop`, `recur`, and `for`. We'll start with the most
+    simple: `if`. `if` takes an expression and two blocks of code. The first one will be executed if the expression
+    is truthy, ie. not `false` or `nil`, the second otherwise. We can use `do` to execute multiple expressions.
+    For example, the following would check if `a` is equal to `b`, and if it was print `Equal!` and if not print
+    `Not equal!` and `Exiting.`:
+    ```clojure
+    (if (= a b) (println "Equal!") (do (println "Not equal!") (println "Exiting.")))
+    ```
+    The next set of control flow forms is `loop` and `recur`. Basically, `loop` takes a list of bindings, like `let`,
+    and binds all of them. Then in the body, `recur` may be used to restart the loop with updated bindings.
+    For example, the following will print the numbers 5 through 1, going down, then print `Done!`:
+    ```clojure
+    (loop [a 5]
+          (println a)
+          (if (= a 0)
+              (println "Done!")
+              (recur (dec a))))
+    ```
+    Notice a few things:
+
+    - We do not need to use `do` to create a block and execute multiple S-expressions.
+    - We do not re-specify the binding for `a` in `recur`; we can simply use `(recur (dec a))`.
+
+    `loop`/`recur` is not recommened for common use; instead, it is preferred to use higher-level looping constructs.
+    One interesting thing about `recur` is that it can also be used in functions, to recurse. This can be useful in
+    anonymous functions.
+
+    Finally, `for` functions like a for-in loop in other languages. It takes a list of bindings, where each value 
+    for the name is a list or vector or similar (more on them later) and a body. The body will be run for each
+    value in the sequence(s) passed. For example, the following will print every element in `a`:
+    ```clojure
+    (for [item a] (println item))
+    ```
+    Here we do have to use `do` to execute multiple statements. We can iterate over multiple lists at once, as said
+    above.
+
+    One control flow construct I forgot to mention is `cond`. It takes an expresion, and a series of matches,
+    and acts like switch-case in other matches. Each match can be any value. As well, a default value can be added
+    to be evaluated if no other cases match. For example, the following would check if `a` was `1`, `2`, or `3`,
+    and then if noene of those match fall back to printing `No match!`:
+    ```clojure
+    (cond a
+        [1 (println 1)]
+        [2 (println 2)]
+        [3 (println 3)]
+        (println "No match!"))
+    ```
+
+    ## Sequences and Maps
+
+    An important part of Clojure is sequences and maps. Sequences come in many forms, and represent collections
+    of values. Some of the most common types are:
+
+    - Lists, written as `'(elems)` or `(list elems)`. (More on `'` later.) Lists represent the traditional Lisp
+      car/cdr or head/tail model of list. They are ordered, but cannot be indexed.
+    - Vectors, written as `[elems]` or `(vector elems)`. Vectors are like lists in other languages; they are ordered
+      and can be indexed.
+    - Sets, written as `#{elems}`. They are like mathemetical sets; all elements must be unique, and they are not
+      ordered. They can also be written as `(set elems)`. Additionally, there is a `sorted-set` function to make a
+      set sorted.
+
+    All of the sequence types can be added to using `conj`. This behaves slightly differently on each type:
+
+    - On vectors, it adds items to the end of the vector.
+    - On lists, it adds items to the start of the list.
+    - On sets, it simply adds the items anywhere, failing if they are already in the set.
+
+    On indexable types (ie., vectors), `get` can be used with a number to get the value at an index. Indexes start
+    at `0`. For example, `(get [1 2 3] 0)` would evaluate to `1`. If the index is out of range, it will return `nil`.
+
+    Maps are created using `{}`, for example `{:a 1 :b 2}`. The values of various keys acan be accessed using `get`
+    with a key instead of a number. For example, `(get {:a 1} :a)` would output `1`. New keys can be added using 
+    `assoc`: `(assoc {:a 1} :b 2)` will result in `{:a 1, :b 2}`. (Note the comma here; commas in Clojure are totally
+    ignored.) Similarly, `dissoc` can be used to remove a key: `(dissoc {:a 1 :b 2} :a)` will output `{:b 2}`.
+
+    Maps have one special feature: since they are often used as lookup tables, they can be called as functions.
+    For example, if I have a map `a`, I can use `(a :b)` instead of `(get a :b)`. As well, since they are often used
+    to represent individual objects, using keywords as properties, we can call properties as well: `(:b a)` is the
+    same as `(a :b)`.
+
+    ## Record Types
+
+    As mentioned above, maps are often used to represent idividual objects, as in a game, for example. However,
+    there is a better solution: record types. They are similar to structs or classes in other languages. A record
+    type can be created using `defrecord`. For example, let's say we wanted a block type for a Minecraft-like game,
+    that stored type, name, X, Y, and Z. We could define it like this:
+    ```clojure
+    (defrecord Block [type name X Y Z])
+    ```
+    Then we can create a grass block at (0, 0, 0) using:
+    ```clojure
+    (->Block [:grass "Grass" 0 0 0])
+    ```
+    Note that this constructor was created by `defrecord`. As well, a function `map->Block` is created, for making a
+    `Block` from a map. For example:
+    ```clojure
+    (map->Block {:type :grass :name "Grass" :X 0 :Y 0 :Z 0})
+    ```
+
+    ## Quoting
+
+    An important part of any Lisp is quoting. Quoting takes an S-expression and converts it to data. You may have
+    noticed that above we used `'(1 2 3)` to create a list. Normally, running `(1 2 3)` would be an error, since
+    `1` cannot be called. However, by quoting it, we postpone its evaluation, so that it simple returns `(1 2 3)`.
+    This can be used to quote other things as well. For example, `'a` would always be `'a`, but `a` will error if
+    `a` is not defined. Thus, quoting can be used to represent code as data. However, quoting with `'` is not
+    always the best solution: a value cannot be unquoted, and it may mess up with symbols. Syntax quote, using
+    the backtick, fixes that. It transforms each symbol to a fully qualified one, including namespaces, and it
+    allows unquoting, using `~`. As well, it allows unquoting *inside* the quoted code. For example, the following
+    will output `(+ 1 3)`:
+    ```clojure
+    `(+ 1 ~(+ 1 2))
+    ```
+    With normal quoting, this would not evaluate correctly. Here, the `~` forces the `(+ 1 2)` to be evaluated,
+    and replaced with its result, `3`.
+
+    ## Macros
+
+    Macros are one of the most powerful features of Clojure. They are like functions, but instead of operating
+    on values, they operate on code, transforming it to other code. In Clojure, they are declared using `defmacro`,
+    which is similar to `defn`. They can take arbitrary parameters, all of which will be S-expressions. Then,
+    they can return either an expression or a quoted node. For example, we might want a macro that adds 1 to its
+    arguments:
+    ```clojure
+    (defmacro add [x] `(+ ~x 1))
+    (println (add 1))
+    ```
+    This will output `2`. Note a few things here:
+
+    - We return a quoted object. This is not strictly necessary, but it is good practice.
+    - We use `~x` instead of just `x` in the quote. This is because if we left it out, it would try to acess `x`
+      in the global scope, which would error.
+    - `add` may look like a normal function when called, but keep in mind: it is actually inlined, meaning
+      the above is in all ways the same as writin `(println (+ 1 1))`.
+
+    One problem you may encounter with macros is namespace polution. If a macro uses a name, that name may also
+    be used in the program, so it could overwrite the previously used version, messing up the code. The solution to
+    this is `gensym`. It returns a quoted symbols that is guaranteed to be unique, and not pollute. For example,
+    to implement a `swap` macro, we might do (at first):
+    ```clojure
+    (defmacro swap [x y]
+        `(let [tmp x]
+            (def x y)
+            (def y tmp)))
+    ```
+    Then we could use `(swap x y)` on any two `def`ed variables `x` and `y`. This approach has one problem, however:
+    if the user does something like `(swap tmp y)`, the macro will not work! The correct approach here is gensym:
+    ```clojure
+    (defmacro swap [x y]
+        (let [symbol (gensym)]
+            `(let [~symbol x]
+                (def x y)
+                (def y ~symbol))))
+    ```
+    However, even this approach has its problems: using these nested `let`s is confusing and cumbersome. Thus, a
+    shortcut is provided: by adding `#` to a name, you effectively ask for a `gensym`-generated symbol. However,
+    each time the same name followdby a `#` is used, the same symbol will be outputted. Thus, `a#` will always equal
+    `a#`. Using this new approach, the above could be re-written as:
+    ```clojure
+    (defmacro swap [x y]
+        `(let [tmp# x]
+            (def x y)
+            (def y tmp#)))
+    ```
+    (Note that this will only work in a quoted block.)
+
+    # Closing
+
+    This concludes my Clojure tutorial. Overall, I find Clojure an interesting language, and I hope you do too.
+    I would highly recommend their website for more info. Anyway, thanks for reading!
