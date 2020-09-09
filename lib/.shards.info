@@ -13,3 +13,6 @@ shards:
   kemal:
     git: https://github.com/sugarfi/kemal.git
     version: 0.26.2
+  markd:
+    git: https://github.com/icyleaf/markd.git
+    version: 0.2.1

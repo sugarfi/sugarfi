@@ -7,5 +7,7 @@ authors:
 dependencies:
     kemal:
         github: sugarfi/kemal
+    markd:
+        github: icyleaf/markd
 
 license: MIT

@@ -12,6 +12,10 @@ shards:
     git: https://github.com/jeromegn/kilt.git
     version: 0.4.0
 
+  markd:
+    git: https://github.com/icyleaf/markd.git
+    version: 0.2.1
+
   radix:
     git: https://github.com/luislavena/radix.git
     version: 0.3.9
