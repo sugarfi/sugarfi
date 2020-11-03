@@ -1,0 +1,12 @@
+title: When can I vote?
+time: 2020-11-02T22:42-05:00
+body: |
+    As well all know, Election day is tomorrow, and many are anxious: will people accept the results? Will there be violence? Obviously: who will win? It doesn't help this confusion and anxiety that many states have complicated rules on how to vote and what makes a vote valid. I wanted to build a quick project to day while at the same time attempting to relieve a bit of this anxiety. That's why I created [When can I vote?](https://vote.sugarfi.dev), a small website to tell you when polling places close in your state. Simply select a state and a countdown timer will be displayed. This was just a small side project, but I think it's cool and I hope you enjoy looking at it! Note that this is not adjusted for timezones or anything: I would *not* recommend using this as your one method to determine when to vote. 
+
+    ## Make sure your vote gets counted.
+    
+    - Stay informed
+    - Follow the news
+    - Vote any way you can
+    - Obey any state regulations on ballots
+    
