@@ -3,12 +3,12 @@ require "yaml"
 require "markd"
 
 def get_posts
-    posts = [] of { String, Time, String, String }
+    posts = [] of { String, Time, String, String, String }
     Dir.new("blog").each do |post|
         unless post == "." || post == ".."
             file = post.split('.')[0]
             post = YAML.parse File.read("blog/#{post}")
-            posts << { post["title"].as_s, Time.parse_iso8601(post["time"].as_s), Markd.to_html(post["body"].as_s), file }
+            posts << { post["title"].as_s, Time.parse_iso8601(post["time"].as_s), Markd.to_html(post["body"].as_s), file, post["body"].to_s }
         end
     end
     posts
@@ -19,6 +19,13 @@ get "/" do
     posts.sort_by! { |x| x[1] }
     posts.reverse!
     render "public/index.ecr"
+end
+
+get "/blog" do
+    posts = get_posts
+    posts.sort_by! { |x| x[1] }
+    posts.reverse!
+    render "public/blog.ecr"
 end
 
 get "/blog/:post" do |env|

@@ -172,6 +172,10 @@ ul#feed > li {
     position: relative;
 }
 
+ul#feed > li:last-of-type {
+    margin-bottom: 0;
+}
+
 ul#feed > li > h2 {
     margin: 0;
 }
@@ -242,7 +246,13 @@ footer {
     padding: 20px;
     width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+a#blog {
+    color: white;
+    margin: 10px;
 }
 
 @media (max-width: 1200px) {

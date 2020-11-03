@@ -1,29 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>sugarfi | <%= post[0] %></title>
+        <title>sugarfi</title>
         <link rel="stylesheet" href="/css/style.css">
         <link rel="stylesheet" href="/css/md.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/themes/prism-tomorrow.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.0/css/OverlayScrollbars.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.0/js/OverlayScrollbars.min.js"></script>
         <meta name="keywords" content="sugarfi, languages, design, web, blog, website">
-        <meta name="og:title" content="sugarfi | <%= post[0] %>">
-        <meta name="og:description" content="<%= post[4][..300] %>">
-        <meta name="description" content="<%= post[4][..300] %>">
+        <meta name="og:title" content="sugarfi">
+        <meta name="og:description" content="languages, design, & the web">
         <meta name="og:image" content="/images/deco.jpg">
+        <meta name="description" content="languages, design, & the web">
     </head>
     <body>
-        <main>
-            <h1><%= post[0] %></h1>
-            <time datetime="<%= post[1] %>">Posted on <%= post[1].to_s "%F %I:%M %P" %></time>
-            <a href="/">Back to home</a>
-            <div class="md">
-                <%= post[2] %>
-            </div>
-        </main>
+        <ul id="feed">
+            <h1>blog</h1>
+            <a id="blog"href="/">back to home</a>
+            <%- posts.each do |post| %>
+                <li>
+                    <h1><%= post[0] %></h1>
+                    <div class="md">
+                        <%= post[2] %>
+                    </div>
+                    <span>Click for more</span>
+                    <time datetime="<%= post[1] %>">Posted on <%= post[1].to_s "%F %I:%M %P" %></time>
+                    <a href="/blog/<%= post[3] %>"></a>
+                </li>
+            <%- end %>
+        </ul>
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 OverlayScrollbars(document.querySelectorAll("body"), {
@@ -34,6 +41,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/components/prism-core.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.21.0/plugins/autoloader/prism-autoloader.min.js"></script>
         <footer>
+            <a id="blog"href="/">back to home</a>
             Copyright 2020 sugarfi
         </footer>
     </body>
