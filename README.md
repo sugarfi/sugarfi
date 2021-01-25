@@ -5,9 +5,8 @@
 Hi there! I am sugarfi, a polygot and aspiring fullstack web developer. I am very interested in low-level topics and how computers work at the bare metal level. I
 also enjoy design and frontend development, and I find programming languages and designing them very interesting. I know quite a lot of them, including:
 
-- Scheme
 - Python
-- Go
+- Ruby
 - Rust
 - C/C++
 - Fish
